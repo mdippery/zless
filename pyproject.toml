@@ -1,0 +1,14 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "zless"
+version = "22.1.dev0"
+description = "Read text files from compressed archives in the terminal"
+authors = ["Michael Dippery <michael@monkey-robot.com>"]
+license = "MIT"
+readme = "README.rst"
+
+[tool.poetry.dependencies]
+python = "^3.8"
