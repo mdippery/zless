@@ -1,5 +1,6 @@
 import tarfile
 from contextlib import contextmanager
+from pathlib import Path
 from typing import IO, Generator, List, Optional, Protocol, Union, cast
 
 
@@ -8,6 +9,7 @@ class ReadError(Exception):
 
 
 FileEntry = Union[tarfile.TarInfo, str]
+FilePath = Union[str, Path]
 
 
 class Archivable(Protocol):
@@ -16,7 +18,7 @@ class Archivable(Protocol):
 
 
 class Archive:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: FilePath) -> None:
         if not tarfile.is_tarfile(path):
             raise ReadError(f"Could not open archive: {path!r}")
         self.path = path
