@@ -1,7 +1,7 @@
 import tarfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Generator, List, Optional, Protocol, Union, cast
+from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast
 
 
 class ReadError(Exception):
@@ -12,9 +12,32 @@ FileEntry = Union[tarfile.TarInfo, str]
 FilePath = Union[str, Path]
 
 
-class Archivable(Protocol):
-    def getmembers(self) -> List[tarfile.TarInfo]: ...
-    def extractfile(self, entry: FileEntry) -> Optional[IO[bytes]]: ...
+class FileInfo(Protocol):
+    @property
+    def name(self) -> str:
+        ...
+
+
+class WrappedArchive(Protocol):
+    def getmembers(self) -> Sequence[FileInfo]:
+        ...
+
+    def extractfile(self, entry: FileEntry) -> IO[bytes]:
+        ...
+
+
+class WrappedTarArchive:
+    def __init__(self, wrapped: tarfile.TarFile):
+        self.wrapped = wrapped
+
+    def getmembers(self) -> Sequence[FileInfo]:
+        return self.wrapped.getmembers()
+
+    def extractfile(self, entry: FileEntry) -> IO[bytes]:
+        data = self.wrapped.extractfile(entry)
+        if data is None:
+            raise ReadError(f"Could not extract file: {entry}")
+        return data
 
 
 class Archive:
@@ -24,17 +47,17 @@ class Archive:
         self.path = path
 
     @property
-    def contents(self) -> List[tarfile.TarInfo]:
+    def contents(self) -> Sequence[FileInfo]:
         with self.open() as tarball:
             return tarball.getmembers()
 
     @contextmanager
-    def open(self) -> Generator[Archivable, None, None]:
+    def open(self) -> Generator[WrappedArchive, None, None]:
         with tarfile.open(self.path) as tarball:
-            yield tarball
+            yield WrappedTarArchive(tarball)
 
     # TODO: Handle attempt to read binary file
     def read(self, entry: FileEntry) -> str:
         with self.open() as tarball:
-            with cast(IO[bytes], tarball.extractfile(entry)) as e:
+            with tarball.extractfile(entry) as e:
                 return e.read().decode("utf-8")
