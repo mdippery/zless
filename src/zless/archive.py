@@ -1,5 +1,6 @@
 import tarfile
-from typing import IO, List, cast
+from contextlib import contextmanager
+from typing import IO, Generator, List, cast
 
 
 class ReadError(Exception):
@@ -14,10 +15,15 @@ class Archive:
 
     @property
     def contents(self) -> List[tarfile.TarInfo]:
-        with tarfile.open(self.path) as tarball:
+        with self.open() as tarball:
             return tarball.getmembers()
 
-    def read(self, entry: tarfile.TarInfo) -> str:
+    @contextmanager
+    def open(self) -> Generator[tarfile.TarFile, None, None]:
         with tarfile.open(self.path) as tarball:
+            yield tarball
+
+    def read(self, entry: tarfile.TarInfo) -> str:
+        with self.open() as tarball:
             with cast(IO[bytes], tarball.extractfile(entry)) as e:
                 return e.read().decode("utf-8")
