@@ -57,6 +57,8 @@ class TarArchive(Archive):
 
     # TODO: Handle attempt to read binary file
     def read(self, entry: FileEntry) -> str:
+        if not isinstance(entry, str):
+            entry = entry.name
         with self.open() as tarball:
             data = tarball.extractfile(entry)
             if data is None:
