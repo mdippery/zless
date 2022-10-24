@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from tarfile import TarInfo
 
-from zless.archive import ReadError, archive
+from zless.archive import BadArchive, archive
 
 
 class ArchiveTestSuite:
@@ -55,7 +55,7 @@ class TarballTestSuite(ArchiveTestSuite):
 
     def test_archive_instantiation_with_invalid_tarball(self):
         path = Path(__file__)
-        with pytest.raises(ReadError):
+        with pytest.raises(BadArchive):
             _ = archive(path)
 
     def test_archive_open(self, path):

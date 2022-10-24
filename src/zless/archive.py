@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast
 
 
-class ReadError(Exception):
+class BadArchive(Exception):
     pass
 
 
@@ -90,4 +90,4 @@ def archive(path: FilePath) -> Archive:
         return TarArchive(path)
     if zipfile.is_zipfile(path):
         return ZipArchive(path)
-    raise ReadError(f"Could not open archive: {path}")
+    raise BadArchive(f"Could not open archive: {path}")
