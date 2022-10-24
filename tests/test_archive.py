@@ -6,6 +6,16 @@ from zless.archive import BadArchive, archive
 
 
 class ArchiveTestSuite:
+    def test_archive_instantiation_with_nonexistent_archive(self, path):
+        path = path.name
+        with pytest.raises(FileNotFoundError):
+            _ = archive(path)
+
+    def test_archive_instantiation_with_invalid_archive(self):
+        path = Path(__file__)
+        with pytest.raises(BadArchive):
+            _ = archive(path)
+
     def test_archive_content_listing(self, path, contents):
         actual = [e.name for e in archive(path).contents]
         assert actual == contents
@@ -44,20 +54,6 @@ class TarballTestSuite(ArchiveTestSuite):
     def unarchived_file(self):
         return Path("zless-22.1.dev0") / "PKG-INFO"
 
-    def test_archive_instantiation_with_gzipped_tarball(self, path):
-        ar = archive(path)
-        assert ar.path == path
-
-    def test_archive_instantiation_with_nonexistent_tarball(self, path):
-        path = path.name
-        with pytest.raises(FileNotFoundError):
-            _ = archive(path)
-
-    def test_archive_instantiation_with_invalid_tarball(self):
-        path = Path(__file__)
-        with pytest.raises(BadArchive):
-            _ = archive(path)
-
     def test_archive_open(self, path):
         with archive(path).open() as ar:
             assert ar is not None
@@ -68,11 +64,21 @@ class TestGzippedTarball(TarballTestSuite):
     def path(self):
         yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0.tar.gz"
 
+    def test_archive_instantiation_with_gzipped_tarball(self, path):
+        ar = archive(path)
+        assert ar.path == path
+        assert ar.path.suffix == ".gz"
+
 
 class TestTarball(TarballTestSuite):
     @pytest.fixture(scope="class")
     def path(self):
         yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0.tar"
+
+    def test_archive_instantiation_with_tarball(self, path):
+        ar = archive(path)
+        assert ar.path == path
+        assert ar.path.suffix == ".tar"
 
 
 class TestZip(ArchiveTestSuite):
@@ -94,3 +100,8 @@ class TestZip(ArchiveTestSuite):
     @pytest.fixture(scope="class")
     def path(self):
         yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0-py3-none-any.whl"
+
+    def test_archive_instantiation_with_zipfile(self, path):
+        ar = archive(path)
+        assert ar.path == path
+        assert ar.path.suffix == ".whl"
