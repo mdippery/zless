@@ -4,6 +4,7 @@ from typing import NoReturn
 import click
 from simple_term_menu import TerminalMenu
 
+import zless
 from zless.archive import Archive, BadArchive
 from zless.paths import output_path
 
@@ -17,6 +18,7 @@ def die(msg: str, code: int) -> NoReturn:
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
+@click.version_option(zless.__version__, "-V", "--version")
 @click.option("-o", "--output", metavar="PATH", help="Output to file instead of stdout.")
 @click.argument("file")
 def zless(file: str, output) -> None:
