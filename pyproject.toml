@@ -28,6 +28,14 @@ optional = true
 [tool.poetry.group.typechecking.dependencies]
 mypy = "^0.982"
 
+[tool.poetry.group.linting]
+optional = true
+
+[tool.poetry.group.linting.dependencies]
+black = "^22.10.0"
+Flake8-pyproject = "^1.1.0.post0"
+flake8-bugbear = "^22.9.23"
+
 [tool.coverage.paths]
 source = [
   "src",
@@ -43,6 +51,11 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "tests/coverage"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "E501"]
+extend-select = ["B950"]
 
 [tool.mpy]
 pretty = true
