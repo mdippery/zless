@@ -18,11 +18,25 @@ python = "^3.8"
 simple-term-menu = "^1.5.2"
 click = "^8.1.3"
 
+[tool.poetry.group.testing.dependencies]
+pytest = "^7.1.3"
+coverage = {extras = ["toml"], version = "^6.5.0"}
+
 [tool.poetry.group.typechecking]
 optional = true
 
 [tool.poetry.group.typechecking.dependencies]
 mypy = "^0.982"
+
+[tool.coverage.paths]
+source = [
+  "src",
+  "/private/tmp/tox_zless/**/site-packages",
+  "/tmp/tox_zless/**/site-packages"
+]
+
+[tool.coverage.html]
+directory = "tests/coverage"
 
 [tool.mpy]
 pretty = true
