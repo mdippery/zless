@@ -1,15 +1,18 @@
 import tarfile
 from contextlib import contextmanager
-from typing import IO, Generator, List, Optional, Protocol, cast
+from typing import IO, Generator, List, Optional, Protocol, Union, cast
 
 
 class ReadError(Exception):
     pass
 
 
+FileEntry = Union[tarfile.TarInfo, str]
+
+
 class Archivable(Protocol):
     def getmembers(self) -> List[tarfile.TarInfo]: ...
-    def extractfile(self, entry: tarfile.TarInfo) -> Optional[IO[bytes]]: ...
+    def extractfile(self, entry: FileEntry) -> Optional[IO[bytes]]: ...
 
 
 class Archive:
@@ -28,7 +31,7 @@ class Archive:
         with tarfile.open(self.path) as tarball:
             yield tarball
 
-    def read(self, entry: tarfile.TarInfo) -> str:
+    def read(self, entry: FileEntry) -> str:
         with self.open() as tarball:
             with cast(IO[bytes], tarball.extractfile(entry)) as e:
                 return e.read().decode("utf-8")
