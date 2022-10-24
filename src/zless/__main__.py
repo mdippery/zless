@@ -8,14 +8,16 @@ from zless.archive import Archive, BadArchive
 from zless.paths import output_path
 
 
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
 def die(msg: str, code: int) -> NoReturn:
     click.echo(msg, err=True)
     sys.exit(code)
 
 
-# TODO: -o to output to file
-@click.command()
-@click.option("-o", "--output", metavar="PATH", help="Output to file instead of stdout")
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.option("-o", "--output", metavar="PATH", help="Output to file instead of stdout.")
 @click.argument("file")
 def zless(file: str, output) -> None:
     try:
