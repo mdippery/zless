@@ -35,6 +35,12 @@ source = [
   "/tmp/tox_zless/**/site-packages"
 ]
 
+[tool.coverage.report]
+exclude_lines = [
+  "\\.\\.\\.",
+  "raise NotImplementedError",
+]
+
 [tool.coverage.html]
 directory = "tests/coverage"
 
