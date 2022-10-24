@@ -1,10 +1,15 @@
 import tarfile
 from contextlib import contextmanager
-from typing import IO, Generator, List, cast
+from typing import IO, Generator, List, Optional, Protocol, cast
 
 
 class ReadError(Exception):
     pass
+
+
+class Archivable(Protocol):
+    def getmembers(self) -> List[tarfile.TarInfo]: ...
+    def extractfile(self, entry: tarfile.TarInfo) -> Optional[IO[bytes]]: ...
 
 
 class Archive:
@@ -19,7 +24,7 @@ class Archive:
             return tarball.getmembers()
 
     @contextmanager
-    def open(self) -> Generator[tarfile.TarFile, None, None]:
+    def open(self) -> Generator[Archivable, None, None]:
         with tarfile.open(self.path) as tarball:
             yield tarball
 
