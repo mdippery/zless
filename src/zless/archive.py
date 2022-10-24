@@ -1,4 +1,5 @@
 import tarfile
+import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast
@@ -8,42 +9,28 @@ class ReadError(Exception):
     pass
 
 
-FileEntry = Union[tarfile.TarInfo, str]
-FilePath = Union[str, Path]
-
-
 class FileInfo(Protocol):
     @property
     def name(self) -> str:
         ...
 
 
-class WrappedArchive(Protocol):
-    def getmembers(self) -> Sequence[FileInfo]:
+class Archive(Protocol):
+    @property
+    def contents(self) -> Sequence[FileInfo]:
         ...
 
-    def extractfile(self, entry: FileEntry) -> IO[bytes]:
+    def read(self, entry: FileInfo) -> str:
         ...
 
 
-class WrappedTarArchive:
-    def __init__(self, wrapped: tarfile.TarFile):
-        self.wrapped = wrapped
-
-    def getmembers(self) -> Sequence[FileInfo]:
-        return self.wrapped.getmembers()
-
-    def extractfile(self, entry: FileEntry) -> IO[bytes]:
-        data = self.wrapped.extractfile(entry)
-        if data is None:
-            raise ReadError(f"Could not extract file: {entry}")
-        return data
+FileEntry = Union[str, FileInfo]
+FilePath = Union[str, Path]
 
 
-class Archive:
+class TarArchive:
     def __init__(self, path: FilePath) -> None:
-        if not tarfile.is_tarfile(path):
-            raise ReadError(f"Could not open archive: {path!r}")
+        assert tarfile.is_tarfile(path)
         self.path = path
 
     @property
@@ -52,12 +39,55 @@ class Archive:
             return tarball.getmembers()
 
     @contextmanager
-    def open(self) -> Generator[WrappedArchive, None, None]:
+    def open(self) -> Generator[tarfile.TarFile, None, None]:
         with tarfile.open(self.path) as tarball:
-            yield WrappedTarArchive(tarball)
+            yield tarball
 
     # TODO: Handle attempt to read binary file
     def read(self, entry: FileEntry) -> str:
         with self.open() as tarball:
-            with tarball.extractfile(entry) as e:
-                return e.read().decode("utf-8")
+            data = tarball.extractfile(entry)
+            if data is None:
+                raise BadArchive(f"{self.path} has no entry: {entry}")
+            return data.read().decode("utf-8")
+
+
+class ZipFileInfo:
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    @property
+    def name(self) -> str:
+        return self.wrapped.filename
+
+
+class ZipArchive:
+    def __init__(self, path) -> None:
+        assert zipfile.is_zipfile(path)
+        self.path = path
+        # TODO: Use context manager
+        self._zip = zipfile.ZipFile(path)
+
+    @property
+    def contents(self) -> Sequence[FileInfo]:
+        return [ZipFileInfo(e) for e in self._zip.infolist()]
+
+    def read(self, entry: FileEntry) -> str:
+        if isinstance(entry, FileInfo):
+            entry = entry.name
+        with self._zip.open(entry) as zip_:
+            return zip_.read().decode("utf-8")
+
+    def __del__(self):
+        try:
+            self._zip.close()
+        except AttributeError:
+            pass
+
+
+def archive(path: FilePath) -> Archive:
+    if tarfile.is_tarfile(path):
+        return TarArchive(path)
+    if zipfile.is_zipfile(path):
+        return ZipArchive(path)
+    raise ReadError(f"Could not open archive: {path}")
