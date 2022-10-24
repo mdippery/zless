@@ -15,20 +15,31 @@ class FileInfo(Protocol):
         ...
 
 
-class Archive(Protocol):
-    @property
-    def contents(self) -> Sequence[FileInfo]:
-        ...
-
-    def read(self, entry: FileInfo) -> str:
-        ...
-
-
 FileEntry = Union[str, FileInfo]
 FilePath = Union[str, Path]
 
 
-class TarArchive:
+class Archive:
+    def __new__(cls, path):
+        if tarfile.is_tarfile(path):
+            cls = TarArchive
+        elif zipfile.is_zipfile(path):
+            cls = ZipArchive
+        else:
+            raise BadArchive(f"Could not open archive: {path}")
+        self = object.__new__(cls)
+        cls.__init__(self, path)
+        return self
+
+    @property
+    def contents(self) -> Sequence[FileInfo]:
+        raise NotImplementedError("Subclasses must implement")
+
+    def read(self, entry: FileInfo) -> str:
+        raise NotImplementedError("Subclasses must implement")
+
+
+class TarArchive(Archive):
     def __init__(self, path: FilePath) -> None:
         assert tarfile.is_tarfile(path)
         self.path = path
@@ -61,7 +72,7 @@ class ZipFileInfo:
         return self.wrapped.filename
 
 
-class ZipArchive:
+class ZipArchive(Archive):
     def __init__(self, path) -> None:
         assert zipfile.is_zipfile(path)
         self.path = path
@@ -83,11 +94,3 @@ class ZipArchive:
             self._zip.close()
         except AttributeError:
             pass
-
-
-def archive(path: FilePath) -> Archive:
-    if tarfile.is_tarfile(path):
-        return TarArchive(path)
-    if zipfile.is_zipfile(path):
-        return ZipArchive(path)
-    raise BadArchive(f"Could not open archive: {path}")

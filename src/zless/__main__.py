@@ -4,7 +4,7 @@ from typing import NoReturn
 import click
 from simple_term_menu import TerminalMenu
 
-from zless.archive import BadArchive, archive as open_archive
+from zless.archive import Archive, BadArchive
 
 
 def die(msg: str, code: int) -> NoReturn:
@@ -16,7 +16,7 @@ def die(msg: str, code: int) -> NoReturn:
 @click.argument("file")
 def zless(file: str) -> None:
     try:
-        archive = open_archive(file)
+        archive = Archive(file)
     except FileNotFoundError as exc:
         die(f"No such file: {file!r}", 1)
     except BadArchive as exc:
