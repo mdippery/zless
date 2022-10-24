@@ -2,13 +2,14 @@ import tarfile
 import zipfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast
+from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast, runtime_checkable
 
 
 class BadArchive(Exception):
     pass
 
 
+@runtime_checkable
 class FileInfo(Protocol):
     @property
     def name(self) -> str:
