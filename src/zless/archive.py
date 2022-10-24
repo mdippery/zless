@@ -1,23 +1,23 @@
 import tarfile
+import typing
 import zipfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Generator, Optional, Protocol, Sequence, Union, cast, runtime_checkable
 
 
 class BadArchive(Exception):
     pass
 
 
-@runtime_checkable
-class FileInfo(Protocol):
+@typing.runtime_checkable
+class FileInfo(typing.Protocol):
     @property
     def name(self) -> str:
         ...
 
 
-FileEntry = Union[str, FileInfo]
-FilePath = Union[str, Path]
+FileEntry = typing.Union[str, FileInfo]
+FilePath = typing.Union[str, Path]
 
 
 class Archive:
@@ -33,7 +33,7 @@ class Archive:
         return self
 
     @property
-    def contents(self) -> Sequence[FileInfo]:
+    def contents(self) -> typing.Sequence[FileInfo]:
         raise NotImplementedError("Subclasses must implement")
 
     def read(self, entry: FileInfo) -> str:
@@ -46,12 +46,12 @@ class TarArchive(Archive):
         self.path = path
 
     @property
-    def contents(self) -> Sequence[FileInfo]:
+    def contents(self) -> typing.Sequence[FileInfo]:
         with self.open() as tarball:
             return tarball.getmembers()
 
     @contextmanager
-    def open(self) -> Generator[tarfile.TarFile, None, None]:
+    def open(self) -> typing.Generator[tarfile.TarFile, None, None]:
         with tarfile.open(self.path) as tarball:
             yield tarball
 
@@ -81,7 +81,7 @@ class ZipArchive(Archive):
         self._zip = zipfile.ZipFile(path)
 
     @property
-    def contents(self) -> Sequence[FileInfo]:
+    def contents(self) -> typing.Sequence[FileInfo]:
         return [ZipFileInfo(e) for e in self._zip.infolist()]
 
     def read(self, entry: FileEntry) -> str:
