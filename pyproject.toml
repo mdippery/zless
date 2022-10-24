@@ -33,8 +33,6 @@ optional = true
 
 [tool.poetry.group.linting.dependencies]
 black = "^22.10.0"
-Flake8-pyproject = "^1.1.0.post0"
-flake8-bugbear = "^22.9.23"
 
 [tool.coverage.paths]
 source = [
@@ -52,10 +50,9 @@ exclude_lines = [
 [tool.coverage.html]
 directory = "tests/coverage"
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "E501"]
-extend-select = ["B950"]
+[tool.black]
+line-length = 96
+target-version = ["py38", "py39", "py310"]
 
 [tool.mpy]
 pretty = true
