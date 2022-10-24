@@ -31,6 +31,7 @@ class Archive:
         with tarfile.open(self.path) as tarball:
             yield tarball
 
+    # TODO: Handle attempt to read binary file
     def read(self, entry: FileEntry) -> str:
         with self.open() as tarball:
             with cast(IO[bytes], tarball.extractfile(entry)) as e:
