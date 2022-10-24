@@ -28,6 +28,8 @@ def zless(file: str, output) -> None:
         contents = archive.contents
         menu = TerminalMenu([entry.name for entry in archive.contents])
         idx = menu.show()
+        if not idx:
+            sys.exit(0)
         entry = contents[idx]
         if not output:
             click.echo_via_pager(archive.read(entry))
