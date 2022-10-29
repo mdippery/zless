@@ -83,21 +83,20 @@ class ZipArchive(Archive):
     def __init__(self, path) -> None:
         assert zipfile.is_zipfile(path)
         self.path = path
-        # TODO: Use context manager
-        self._zip = zipfile.ZipFile(path)
 
     @property
     def contents(self) -> typing.Sequence[FileInfo]:
-        return [ZipFileInfo(e) for e in self._zip.infolist()]
+        with self.open() as _zip:
+            return [ZipFileInfo(e) for e in _zip.infolist()]
+
+    @contextmanager
+    def open(self) -> typing.Generator[zipfile.ZipFile, None, None]:
+        with zipfile.ZipFile(self.path) as zip_:
+            yield zip_
 
     def read_bytes(self, entry: FileEntry) -> bytes:
         if isinstance(entry, FileInfo):
             entry = entry.name
-        with self._zip.open(entry) as zip_:
-            return zip_.read().decode("utf-8")
-
-    def __del__(self):
-        try:
-            self._zip.close()
-        except AttributeError:
-            pass
+        with self.open() as _zip:
+            with _zip.open(entry) as entry:
+                return entry.read()
