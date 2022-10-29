@@ -21,7 +21,7 @@ def die(msg: str, code: int) -> NoReturn:
 @click.version_option(__version__, "-V", "--version")
 @click.option("-o", "--output", metavar="PATH", help="Output to file instead of stdout.")
 @click.argument("file")
-def zless(file: str, output) -> None:
+def zless(file: str, output: str) -> None:
     try:
         archive = Archive(file)
     except FileNotFoundError as exc:

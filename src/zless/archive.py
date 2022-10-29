@@ -23,7 +23,7 @@ Encoding = str
 
 
 class Archive:
-    def __new__(cls, path):
+    def __new__(cls: typing.Type["Archive"], path: str) -> "Archive":
         if tarfile.is_tarfile(path):
             cls = TarArchive
         elif zipfile.is_zipfile(path):
@@ -33,6 +33,9 @@ class Archive:
         self = object.__new__(cls)
         cls.__init__(self, path)
         return self
+
+    def __init__(self, path: str) -> None:
+        raise NotImplementedError("Subclasses must implement")
 
     @property
     def contents(self) -> typing.Sequence[FileInfo]:
@@ -71,7 +74,7 @@ class TarArchive(Archive):
 
 
 class ZipFileInfo:
-    def __init__(self, wrapped):
+    def __init__(self, wrapped: zipfile.ZipInfo) -> None:
         self.wrapped = wrapped
 
     @property
@@ -80,7 +83,7 @@ class ZipFileInfo:
 
 
 class ZipArchive(Archive):
-    def __init__(self, path) -> None:
+    def __init__(self, path: str) -> None:
         assert zipfile.is_zipfile(path)
         self.path = path
 
