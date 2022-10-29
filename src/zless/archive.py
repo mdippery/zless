@@ -19,6 +19,8 @@ class FileInfo(typing.Protocol):
 FileEntry = typing.Union[str, FileInfo]
 FilePath = typing.Union[str, Path]
 
+Encoding = str
+
 
 class Archive:
     def __new__(cls, path):
@@ -36,7 +38,10 @@ class Archive:
     def contents(self) -> typing.Sequence[FileInfo]:
         raise NotImplementedError("Subclasses must implement")
 
-    def read(self, entry: FileInfo) -> str:
+    def read(self, entry: FileInfo, encoding: Encoding = "utf-8") -> str:
+        return self.read_bytes(entry).decode(encoding)
+
+    def read_bytes(self, entry: FileInfo) -> bytes:
         raise NotImplementedError("Subclasses must implement")
 
 
@@ -55,15 +60,14 @@ class TarArchive(Archive):
         with tarfile.open(self.path) as tarball:
             yield tarball
 
-    # TODO: Handle attempt to read binary file
-    def read(self, entry: FileEntry) -> str:
+    def read_bytes(self, entry: FileEntry) -> bytes:
         if not isinstance(entry, str):
             entry = entry.name
         with self.open() as tarball:
             data = tarball.extractfile(entry)
             if data is None:
                 raise BadArchive(f"{self.path} has no entry: {entry}")
-            return data.read().decode("utf-8")
+            return data.read()
 
 
 class ZipFileInfo:
@@ -86,7 +90,7 @@ class ZipArchive(Archive):
     def contents(self) -> typing.Sequence[FileInfo]:
         return [ZipFileInfo(e) for e in self._zip.infolist()]
 
-    def read(self, entry: FileEntry) -> str:
+    def read_bytes(self, entry: FileEntry) -> bytes:
         if isinstance(entry, FileInfo):
             entry = entry.name
         with self._zip.open(entry) as zip_:
