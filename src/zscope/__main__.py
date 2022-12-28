@@ -4,9 +4,9 @@ from typing import NoReturn
 import click
 from simple_term_menu import TerminalMenu
 
-from zless import __version__
-from zless.archive import Archive, BadArchive
-from zless.paths import output_path
+from zscope import __version__
+from zscope.archive import Archive, BadArchive
+from zscope.paths import output_path
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -21,7 +21,7 @@ def die(msg: str, code: int) -> NoReturn:
 @click.version_option(__version__, "-V", "--version")
 @click.option("-o", "--output", metavar="PATH", help="Output to file instead of stdout.")
 @click.argument("file")
-def zless(file: str, output: str) -> None:
+def zscope(file: str, output: str) -> None:
     try:
         archive = Archive(file)
     except FileNotFoundError as exc:
@@ -44,4 +44,4 @@ def zless(file: str, output: str) -> None:
 
 
 if __name__ == "__main__":
-    zless()
+    zscope()

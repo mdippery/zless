@@ -1,5 +1,5 @@
 =====
-zless
+zscope
 =====
 
     Read text files from compressed archives in the terminal

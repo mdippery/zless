@@ -3,7 +3,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "zless"
+name = "zscope"
 version = "22.1.dev0"
 description = "Read text files from compressed archives in the terminal"
 authors = ["Michael Dippery <michael@monkey-robot.com>"]
@@ -11,7 +11,7 @@ license = "MIT"
 readme = "README.rst"
 
 [tool.poetry.scripts]
-zless = "zless.__main__:zless"
+zscope = "zscope.__main__:zscope"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -37,8 +37,8 @@ black = "^22.10.0"
 [tool.coverage.paths]
 source = [
   "src",
-  "/private/tmp/tox_zless/**/site-packages",
-  "/tmp/tox_zless/**/site-packages"
+  "/private/tmp/tox_zscope/**/site-packages",
+  "/tmp/tox_zscope/**/site-packages"
 ]
 
 [tool.coverage.report]
@@ -52,7 +52,7 @@ directory = "tests/coverage"
 
 [tool.black]
 line-length = 96
-target-version = ["py38", "py39", "py310"]
+target-version = ["py38", "py39", "py310", "py311"]
 
 [tool.mpy]
 pretty = true

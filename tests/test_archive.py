@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from tarfile import TarInfo
 
-from zless.archive import Archive, BadArchive
+from zscope.archive import Archive, BadArchive
 
 
 class ArchiveTestSuite:
@@ -42,17 +42,20 @@ class TarballTestSuite(ArchiveTestSuite):
     @pytest.fixture(scope="class")
     def contents(self):
         yield [
-            "zless-22.1.dev0/README.rst",
-            "zless-22.1.dev0/pyproject.toml",
-            "zless-22.1.dev0/src/zless/__init__.py",
-            "zless-22.1.dev0/src/zless/__main__.py",
-            "zless-22.1.dev0/setup.py",
-            "zless-22.1.dev0/PKG-INFO",
+            "zscope-22.1.dev0/README.rst",
+            "zscope-22.1.dev0/pyproject.toml",
+            "zscope-22.1.dev0/src/zscope/__init__.py",
+            "zscope-22.1.dev0/src/zscope/__main__.py",
+            "zscope-22.1.dev0/src/zscope/archive.py",
+            "zscope-22.1.dev0/src/zscope/paths.py",
+            "zscope-22.1.dev0/src/zscope/py.typed",
+            "zscope-22.1.dev0/setup.py",
+            "zscope-22.1.dev0/PKG-INFO",
         ]
 
     @pytest.fixture(scope="class")
     def unarchived_file(self):
-        return Path("zless-22.1.dev0") / "PKG-INFO"
+        return Path("zscope-22.1.dev0") / "PKG-INFO"
 
     def test_archive_open(self, path):
         with Archive(path).open() as ar:
@@ -62,7 +65,7 @@ class TarballTestSuite(ArchiveTestSuite):
 class TestGzippedTarball(TarballTestSuite):
     @pytest.fixture(scope="class")
     def path(self):
-        yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0.tar.gz"
+        yield Path(__file__).parent / "fixtures" / "zscope-22.1.dev0.tar.gz"
 
     def test_archive_instantiation_with_gzipped_tarball(self, path):
         ar = Archive(path)
@@ -73,7 +76,7 @@ class TestGzippedTarball(TarballTestSuite):
 class TestTarball(TarballTestSuite):
     @pytest.fixture(scope="class")
     def path(self):
-        yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0.tar"
+        yield Path(__file__).parent / "fixtures" / "zscope-22.1.dev0.tar"
 
     def test_archive_instantiation_with_tarball(self, path):
         ar = Archive(path)
@@ -85,21 +88,24 @@ class TestZip(ArchiveTestSuite):
     @pytest.fixture(scope="class")
     def contents(self):
         yield [
-            "zless/__init__.py",
-            "zless/__main__.py",
-            "zless-22.1.dev0.dist-info/entry_points.txt",
-            "zless-22.1.dev0.dist-info/WHEEL",
-            "zless-22.1.dev0.dist-info/METADATA",
-            "zless-22.1.dev0.dist-info/RECORD",
+            "zscope/__init__.py",
+            "zscope/__main__.py",
+            "zscope/archive.py",
+            "zscope/paths.py",
+            "zscope/py.typed",
+            "zscope-22.1.dev0.dist-info/entry_points.txt",
+            "zscope-22.1.dev0.dist-info/WHEEL",
+            "zscope-22.1.dev0.dist-info/METADATA",
+            "zscope-22.1.dev0.dist-info/RECORD",
         ]
 
     @pytest.fixture(scope="class")
     def unarchived_file(self):
-        yield Path("zless-22.1.dev0.dist-info") / "WHEEL"
+        yield Path("zscope-22.1.dev0.dist-info") / "WHEEL"
 
     @pytest.fixture(scope="class")
     def path(self):
-        yield Path(__file__).parent / "fixtures" / "zless-22.1.dev0-py3-none-any.whl"
+        yield Path(__file__).parent / "fixtures" / "zscope-22.1.dev0-py3-none-any.whl"
 
     def test_archive_instantiation_with_zipfile(self, path):
         ar = Archive(path)
