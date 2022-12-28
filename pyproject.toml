@@ -37,8 +37,7 @@ black = "^22.10.0"
 [tool.coverage.paths]
 source = [
   "src",
-  "/private/tmp/tox_zscope/**/site-packages",
-  "/tmp/tox_zscope/**/site-packages"
+  "$TOXWORKDIR/**/site-packages",
 ]
 
 [tool.coverage.report]
