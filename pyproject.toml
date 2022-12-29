@@ -9,6 +9,9 @@ description = "Read text files from compressed archives in the terminal"
 authors = ["Michael Dippery <michael@monkey-robot.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.rst"
+homepage = "https://github.com/mdippery/zscope"
+repository = "https://github.com/mdippery/zscope"
+documentation = "https://github.com/mdippery/zscope"
 packages = [{include = "zscope", from = "src"}]
 
 [tool.poetry.scripts]
